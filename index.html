@@ -1,0 +1,60 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><link rel="icon" href="data:">
+<title>AR trump (ARトランプ)</title>
+</head>
+<body>
+
+<header>
+	<h1>AR trump (ARトランプ)</h1>
+	LIB: <a href="https://github.com/code4fukui/egxr.js/">egxr.js</a><br>
+	APP: <a href="https://github.com/code4fukui/ar-suijack/">src on GitHub</a><br>
+</header>
+
+<script type="module">
+import { THREE, scene, camera, renderer } from "https://code4fukui.github.io/egxr.js/egxr.js";
+import { shuffle } from "https://js.sabae.cc/shuffle.js";
+import { createCard } from "./createCard.js";
+
+const cards = [];
+for (let i = 0; i < 4; i++) {
+	for (let j = 1; j <= 13; j++) {
+		cards.push(createCard(i, j));
+	}
+}
+const list = [];
+for (let i = 0; i < 13 * 2; i++) {
+	list.push(cards[i]);
+}
+shuffle(list);
+
+const ncards = 10;
+list.length = ncards;
+for (let i = 0; i < ncards; i++) {
+	const card = list[i];
+	const card2 = cards.find(i => card.num == i.num && card.suit == (i.suit + 2) % 4);
+	list.push(card2);
+}
+shuffle(list);
+
+for (let i = 0; i < list.length; i++) {
+	const card = list[i];
+	const sw = 0.1;
+	const sh = 0.12;
+	card.position.x = -(sw * (5 - 1)) / 2 + (i % 5) * sw;
+	card.position.y = 0.2 - Math.floor(i / 5) * sh;
+	card.position.z = -0.4;
+	card.rotation.y = i * 0.2;
+	card.animate = (t) => {
+		card.rotation.y += 0.01;
+	};
+	scene.add(card);
+}
+
+const t0 = performance.now();
+renderer.setAnimationLoop(() => {
+	const t = t0 - performance.now();
+	list.forEach(i => i.animate());
+	renderer.render(scene, camera);
+});
+</script>
+</body>
+</html>
